@@ -43,6 +43,25 @@ def gen_transaction_id():
     """
     return str(uuid.uuid4())
 
+def gen_cc_number_masked():
+    """Generates masked credit card number. It generates two types of numbers:
+    - 16 digit sequence (****-****-****-NNNN) that match Visa and MasterCard
+    credit card numbers
+    - 15 digit sequence (****-******-*NNNN) that matches America Express credit
+    card numbers
+
+    :returns:  Masked credit card number as string
+    """
+    last_four = str(random.randint(1, 9999)).zfill(4)
+    
+    # introducing some randomization what kind of CC number is genrated
+    if random.randint(1, 100) % 2 == 0:
+        cc_number = '****-****-****-' + last_four
+    else:
+        cc_number = '****-******-*' + last_four
+    
+    return cc_number
+
 if __name__ == "__main__":
     console_logger = logging.getLogger('logger.console')
     console_logger.setLevel(logging.DEBUG)
