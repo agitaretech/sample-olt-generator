@@ -11,6 +11,7 @@
     
 import logging
 import random
+import string
 import uuid
 
 def gen_ip_address():
@@ -42,6 +43,15 @@ def gen_transaction_id():
     :returns:  Random GUID as string
     """
     return str(uuid.uuid4())
+
+def gen_order_id(size=6):
+    """Random string of size `size` consisting of upper case letters and numbers
+
+    :param size: The length of the order identifiers. 6 by default
+    :type max_count: int
+    :returns:  Order identifier
+    """
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(size))
 
 def gen_cc_number_masked():
     """Generates masked credit card number. It generates two types of numbers:
