@@ -46,6 +46,7 @@ def gen_transaction_id():
 
 def gen_order_id(size=6):
     """Random string of size `size` consisting of upper case letters and numbers
+    that can be used as order identifier
 
     :param size: The length of the order identifiers. 6 by default
     :type max_count: int
@@ -71,6 +72,16 @@ def gen_cc_number_masked():
         cc_number = '****-******-*' + last_four
     
     return cc_number
+
+def gen_purchase_amount(max_amount=1000):
+    """Generates random number between 1 and `max_amount` that can be used as
+    purchase amount for an order
+
+    :param max_amount: The maximum amount for the purchases. Default is 1,000
+    :type max_count: int
+    :returns:  Purchase amount as float
+    """
+    return '{0:.2f}'.format(random.uniform(1, max_amount))
 
 if __name__ == "__main__":
     console_logger = logging.getLogger('logger.console')
