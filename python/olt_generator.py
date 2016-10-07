@@ -12,6 +12,7 @@
 import logging
 import random
 import string
+import time
 import uuid
 
 def gen_ip_address():
@@ -83,12 +84,52 @@ def gen_purchase_amount(max_amount=1000):
     """
     return '{0:.2f}'.format(random.uniform(1, max_amount))
 
+def convert_ISOdatestr_to_seconds(iso_date):
+    """Converts ISO-8601 formatted string into Python `time` tuple and returns
+    the seconds since Jan, 1st 1970. Accepted format for the date is `YYYY-MM-DD`
+    Note: This function does not interpret the time part of the ISO-8601 and throws
+    exception if the time part is specified
+
+    :param iso_date: The ISO-8601 formatted date
+    :type iso_date: string
+    :returns:  The seconds since epoch
+    :raises: ValueError - If the `iso_date` string cannot be parsed
+    """
+    till_date = time.strptime(iso_date, '%Y-%m-%d')
+    seconds = time.mktime(till_date)
+    return seconds
+
+def gen_historical_timestamp(start_date, end_date):
+    """Converts the input ISO-8601 formatted strings into Python `time` tuple and
+    returns randomly generated ISO-8601 timestamp between those two dates.
+    Accepted format for the date is `YYYY-MM-DD`
+    Note: This function does not interpret the time part of the ISO-8601 and throws
+    exception if the time part is specified
+
+    :param start_date: The ISO-8601 formatted date
+    :type start_date: string
+    :param end_date: The ISO-8601 formatted date
+    :type end_date: string
+    :returns:  Random ISO-8601 timestamp between those dates as string
+    :raises: ValueError - If the `start_date` and `end_date` strings cannot be parsed
+    """
+    start_date = convert_ISOdatestr_to_seconds(start_date)
+    end_date = convert_ISOdatestr_to_seconds(end_date)
+    result = time.gmtime(random.uniform(start_date, end_date))
+    
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", result)
+
 if __name__ == "__main__":
+    separator = ','
+    
     console_logger = logging.getLogger('logger.console')
     console_logger.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler()
     console_logger.addHandler(console_handler)
     
     while True:
-        olt_log_entry = gen_ip_address + ',' + gen_user_id
-        console_logger.info()
+        olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
+                        gen_historical_timestamp(1,2) + separator + gen_purchase_amount() + \
+                        separator + gen_transaction_id() + separator + \
+                        gen_cc_number_masked() + separator + gen_order_id()
+        console_logger.info(olt_log_entry)
