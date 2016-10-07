@@ -129,7 +129,7 @@ if __name__ == "__main__":
     
     while True:
         olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
-                        gen_historical_timestamp(1,2) + separator + gen_purchase_amount() + \
-                        separator + gen_transaction_id() + separator + \
+                        time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + separator + \
+                        gen_purchase_amount() + separator + gen_transaction_id() + separator + \
                         gen_cc_number_masked() + separator + gen_order_id()
         console_logger.info(olt_log_entry)
