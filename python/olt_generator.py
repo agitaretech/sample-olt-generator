@@ -8,7 +8,8 @@
 
 .. moduleauthor:: Toddy Mladenov <toddysm@agitaretech.com>
 """
-    
+
+import argparse
 import logging
 import random
 import string
@@ -120,16 +121,84 @@ def gen_historical_timestamp(start_date, end_date):
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", result)
 
 if __name__ == "__main__":
-    separator = ','
+    
+    # parse the command line arguments
+    arg_parser = argparse.ArgumentParser(description="Starts the event generation \
+                                         scipt")
+    arg_parser.add_argument('-m', '--mode', help="Mode of events generation. Can be \
+                            'r' for real-time and 'h' for historical. Real-time is \
+                            assumed if not specified", choices=['r', 'h'], default='r', \
+                            required=False)
+    arg_parser.add_argument('-c', '--count', help="Number of events to generate. \
+                            Can be '0' for unlimited or any positive integer. If \
+                            the mode is historical then it must be integer bigger \
+                            than zero", type=int, default=0, required=False)
+    arg_parser.add_argument('-f', '--freq', help="Frequency of events generated. \
+                            Can be any positive number and determines the number of \
+                            seconds between events. It is relevant only in real-time \
+                            mode. Default is 3 sec", type=int, default=3, required=False)
+    arg_parser.add_argument('-s', '--start_date', help="The start date for generating \
+                            historical events. It should be in ISO-8601 format as \
+                            follows 'YYYY-MM-DD'. If not specified then 1970-01-01 \
+                            is assumed. Relevant only in historical events generation \
+                            mode", required=False)
+    arg_parser.add_argument('-e', '--end_date', help="The end date for generating \
+                            historical events. It should be in ISO-8601 format as \
+                            follows 'YYYY-MM-DD'. If not specified then current date \
+                            is assumed. Relevant only in historical events generation \
+                            mode", default="1970-01-01", required=False)
+    arg_parser.add_argument('-p', '--separator', help="The separator to use for the \
+                            events generation. Can be 'c' for comma and 't' for tab \
+                            If not specified comma is assumed.", \
+                            choices=['c', 't'], default='c', required=False)
+
+    #TODO add option for historical generation of data that uses some distribution algorithm
+    
+    args = arg_parser.parse_args()
+
+    # do the necessary checks
+    if args.mode == 'h' and args.count == 0:
+        raise Exception('You need to specify number of events to generate for historical mode')
+    if args.count < 0:
+        raise Exception('Number of generated events cannot be negative')
+    
+    # do the necessary conversions
+    if args.separator == 'c':
+        separator = ','
+    else:
+        separator = '\t'
+
+    if args.start_date is None:
+        args.start_date = time.strftime("%Y-%m-%d", time.gmtime())
     
     console_logger = logging.getLogger('logger.console')
     console_logger.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler()
     console_logger.addHandler(console_handler)
-    
-    while True:
-        olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
-                        time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + separator + \
-                        gen_purchase_amount() + separator + gen_transaction_id() + separator + \
-                        gen_cc_number_masked() + separator + gen_order_id()
-        console_logger.info(olt_log_entry)
+
+    # TODO nested-if - rework
+    if args.mode == 'r':
+        if args.count == 0:
+            while True:
+                olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
+                                time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + separator + \
+                                gen_purchase_amount() + separator + gen_transaction_id() + separator + \
+                                gen_cc_number_masked() + separator + gen_order_id()
+                console_logger.info(olt_log_entry)
+                time.sleep(args.freq)
+        else:
+            for i in range(0, args.count):
+                olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
+                                time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + separator + \
+                                gen_purchase_amount() + separator + gen_transaction_id() + separator + \
+                                gen_cc_number_masked() + separator + gen_order_id()
+                console_logger.info(olt_log_entry)
+                time.sleep(args.freq)
+    else:
+        for i in range(0, args.count):
+            olt_log_entry = gen_ip_address() + separator + gen_user_id() + separator + \
+                            gen_historical_timestamp(args.start_date, args.end_date) + separator + \
+                            gen_purchase_amount() + separator + gen_transaction_id() + separator + \
+                            gen_cc_number_masked() + separator + gen_order_id()
+            console_logger.info(olt_log_entry)
+            time.sleep(args.freq)
