@@ -1,0 +1,16 @@
+# Set Fluentd base image
+FROM fluent/fluentd:latest-onbuild
+
+# File Author / Maintainer
+MAINTAINER Toddy Mladenov <toddysm@agitaretech.com>
+
+WORKDIR /home/fluent
+ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
+
+USER fluent
+RUN gem install fluent-plugin-parser
+RUN gem install fluent-plugin-record-modifier
+
+EXPOSE 24224
+
+CMD fluentd -c /fluentd/etc/$FLUENTD_CONF -p /fluentd/plugins $FLUENTD_OPT
