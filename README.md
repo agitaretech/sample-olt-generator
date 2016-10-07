@@ -1,4 +1,4 @@
-# sample-olt-generator
+# Sample Online Transactions Generator
 This sample application generates Online Transaction log entries in the following format:
 
     [ip_address], [user_id], [timestamp], [purchase_amount], [transaction_id], [credit_card_no], [order_no]
@@ -24,3 +24,9 @@ mode you need to specify how many transaction entries you would like to generate
 to the standard output but will stop when the maximum is reached
 * **Stream of online transactions** - In this mode it continuously generates transactions with the current timestamp
 and sends them to the standard output
+
+# How to use this script?
+You can start the script directly by using: `$ python ./python/olt_generatory.py`
+from a location where this `README.md` file is located or you can run the script in Docker.
+
+## Running the OLT generator Python script directly
