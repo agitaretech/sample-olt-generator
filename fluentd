@@ -13,7 +13,28 @@ RUN apk --no-cache --update add sudo build-base ruby-dev && \
     apk add sudo build-base libxml2-dev && \
     apk add sudo build-base libxslt-dev && \
     
-    sudo -u fluent gem install fluent-plugin-parser fluent-plugin-record-modifier && \
+    apk update && \
+    apk add ca-certificates wget && \                                                                             
+    update-ca-certificates
+
+# build the azure SDK
+RUN sudo -u fluent wget https://github.com/Azure/azure-sdk-for-ruby/archive/0.6.4-May2014.tar.gz
+RUN sudo -u fluent tar -xvf 0.6.4-May2014.tar.gz
+RUN sudo -u fluent mv ./azure-sdk-for-ruby-0.6.4-May2014/azure.gemspec ./azure-sdk-for-ruby-0.6.4-May2014/azure.gemspec.ORIG
+ADD ./ruby/azure-v0.6.4/azure.gemspec /home/fluent/azure-sdk-for-ruby-0.6.4-May2014
+RUN sudo -u fluent gem build ./azure-sdk-for-ruby-0.6.4-May2014/azure.gemspec
+RUN sudo -u fluent gem install ./azure-0.6.4.gem
+
+# build the azure-storage SDK
+RUN sudo -u fluent wget https://github.com/Azure/azure-storage-ruby/archive/v0.11.1.tar.gz
+RUN sudo -u fluent tar -xvf v0.11.1.tar.gz
+RUN sudo -u fluent mv ./azure-storage-ruby-0.11.1/azure-storage.gemspec ./azure-storage-ruby-0.11.1/azure-storage.gemspec.ORIG
+ADD ./ruby/azure-storage-ruby-0.11.1/azure-storage.gemspec /home/fluent/azure-storage-ruby-0.11.1
+RUN sudo -u fluent gem build ./azure-storage-ruby-0.11.1/azure-storage.gemspec
+RUN sudo -u fluent gem install ./azure-storage-0.11.1.preview.gem
+
+#RUN  sudo -u fluent gem install fluent-plugin-parser fluent-plugin-record-modifier
+RUN  sudo -u fluent gem install fluent-plugin-parser fluent-plugin-record-modifier fluent-plugin-azurestorage && \
 
     rm -rf /home/fluent/.gem/ruby/2.3.0/cache/*.gem && sudo -u fluent gem sources -c && \
     apk del sudo build-base ruby-dev && rm -rf /var/cache/apk/*
