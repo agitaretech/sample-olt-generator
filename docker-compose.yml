@@ -1,0 +1,16 @@
+version: '2'
+services:
+    oltgenerator:
+        build:
+            context: .
+            dockerfile: oltgenerator
+        logging:
+            driver: fluentd
+        links:
+            - fluentd:fluentd
+    fluentd:
+        build:
+            context: .
+            dockerfile: fluentd
+        ports:
+            - "24224:24224"
